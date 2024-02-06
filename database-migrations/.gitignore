@@ -1,0 +1,7 @@
+/.idea
+
+# Compiled class file
+*.class
+# Project build files
+build/
+/.gradle/

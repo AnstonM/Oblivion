@@ -1,0 +1,10 @@
+buildscript {
+    dependencies {
+        classpath "$postgres_driver"
+    }
+}
+
+plugins {
+    id "org.flywaydb.flyway" version "$flyway_version"
+}
+
