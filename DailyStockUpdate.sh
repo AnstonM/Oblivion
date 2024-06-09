@@ -1,0 +1,1 @@
+python3 D:\\Oblivion\\DailyStockUpdate.py -u $1
