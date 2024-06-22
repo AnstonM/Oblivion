@@ -1,11 +1,9 @@
 import yfinance as yf
 import pandas as pd
 import pandas_ta as ta
-import config
-import Messages
 from enum import Enum
 import numpy as np
-from pprint import pprint
+from config import CANDLE_STICK_PATTERN_LIST
 
 
 RSI_NEGATIVE_THRESHOLD = 60
@@ -769,7 +767,7 @@ def analyze_XsideGap3Method(preliminary_data: CandleStickPreliminaryData):
 
 def analyzeCandleStickPatterns(symbol: str):
     preliminary_data = CandleStickPreliminaryData(
-        symbol=symbol, pattern_recognition="all"
+        symbol=symbol, pattern_recognition=CANDLE_STICK_PATTERN_LIST
     )
     analyze_2Crows(preliminary_data)
     analyze_3BlackCrows(preliminary_data)
