@@ -31,6 +31,9 @@ To see the existing list:
 To see the current movement of the stocks, use:
 \t\t\t/current
 
+To see today's candle stick analysis:
+\t\t\t/candle
+
 you can see this message again by using:
 \t\t\t/help
 """

@@ -2,6 +2,8 @@ import telebot
 import re
 from StockAnalysis import *
 import Messages
+from CandleStickAnalysis import getFinalSay
+from config import ANALYSIS_LIST
 
 
 def getMonitoringFilebyChatId(chat_id: str):
@@ -83,9 +85,48 @@ def handleGetCurrentPrice(bot: telebot.TeleBot, message: telebot.types.Message):
     except:
         handleFileNotFoundError(bot=bot, message=message)
 
+def handleGetCurrentPriceSingle(bot: telebot.TeleBot, message: telebot.types.Message, symbol: str):
+    if checkSymbolExists(symbol):
+        bot.reply_to(message, getStockDetails(symbol=symbol.strip()))
+    else:
+        bot.reply_to(message, f"{symbol} is not a valid symbol")
+
 
 def handleFileNotFoundError(bot: telebot.TeleBot, message: telebot.types.Message):
     bot.reply_to(
         message,
         "Could not find anything in your list.\n\nTry adding something to the list or Try again after some time.",
     )
+
+def handleCandle(bot: telebot.TeleBot, message: telebot.types.Message):
+    starter_message = "Candle Stick Analysis 📊"
+    data = f"{starter_message}: \n\n"
+    chat_id = message.chat.id
+    try:
+        with open(getMonitoringFilebyChatId(chat_id = chat_id), "r") as file:
+            symbol_list = file.readlines()
+            if len(symbol_list) == 0:
+                return
+            symbol_list.sort()
+            for symbol in symbol_list:
+                data += "----------------------------------------------\n\n"
+                data += getFinalSay(symbol=symbol.strip())
+        if str(chat_id) in ANALYSIS_LIST:
+            print(chat_id)     
+            bot.send_message(chat_id=chat_id, text=data)
+        else:
+            bot.reply_to(message, text="You are not allowed to use this command")
+    except:
+        handleFileNotFoundError(bot=bot, chat_id=chat_id)
+
+def handleCandleSingle(bot: telebot.TeleBot, message: telebot.types.Message, symbol: str):
+    if checkSymbolExists(symbol):
+        chat_id = message.chat.id
+        if str(chat_id) in ANALYSIS_LIST:
+            data = getFinalSay(symbol=symbol.strip())
+            bot.reply_to(message, text=data)
+        else:
+            bot.reply_to(message, text="You are not allowed to use this command")
+    else:
+        bot.reply_to(message, f"{symbol} is not a valid symbol")
+   

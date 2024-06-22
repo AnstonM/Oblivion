@@ -9,3 +9,5 @@ CANDLE_STICK_PATTERN_LIST = [
     "morningstar",
     "spinningtop",
 ]
+
+ANALYSIS_LIST = ["1554223395"]

@@ -31,7 +31,7 @@ def getStockDetails(symbol: str):
     current_price = info["currentPrice"]
     previous_close = info["regularMarketPreviousClose"]
     diff = current_price - previous_close
-    sign = "-"
+    sign = ""
     indicator = "🔻"
     if diff > 0:
         indicator = "✅"
@@ -48,34 +48,3 @@ def getStockDetails(symbol: str):
         diff=diff,
         change_percentage=change_percentage,
     )
-
-def analyzeCandleStickPatterns(symbol: str):
-    history = yf.Ticker(f"{symbol}.NS").history(period="1mo")
-    RSI = history.ta.rsi() # Relative Strength Index (https://www.rachanaranade.com/blog/rsi)
-    class Prediction(Enum):
-        POSITIVE = 1
-        NEGATIVE = -1
-        UNSTABLE = 0
-    latest_day = history[-1]
-    latest_rsi = RSI[-1]
-    prev_day = history[-2]
-    predict = dict()
-
-    # Analyze 2 Crows Trend (Reversal of Upward Trend)
-    if(latest_day["CDL_2CROWS"] > 0):
-        predict["CDL_2CROWS"] = Prediction.NEGATIVE
-    else:
-        predict["CDL_2CROWS"] = Prediction.UNSTABLE
-    
-    # Analyze 3 Black Crows Trend (Reversal of Upward Trend)
-    if(latest_day["CDL_3BLACKCROWS"] > 0 and RSI[-1] > 60 ):
-        predict["CDL_3BLACKCROWS"] = Prediction.NEGATIVE
-    else:
-        predict["CDL_3BLACKCROWS"] = Prediction.UNSTABLE
-
-    # Analyze 3 Inside Trend ()
-
-#%%
-import yfinance as yf
-yf.Ticker("MRPL.NS").history(period="1mo").ta.rsi()[-1]
-# %%

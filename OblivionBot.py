@@ -2,6 +2,8 @@ import telebot
 import config
 import BotHelper
 import Messages
+import re
+from StockAnalysis import getStockDetails
 
 BOT = telebot.TeleBot(config.BOT_TOKEN, threaded=True, num_threads=4)
 @BOT.message_handler(commands=['start', 'hello'])
@@ -29,6 +31,21 @@ def showeList(message):
 
 @BOT.message_handler(commands=['Current', 'current'])
 def currentData(message):
-    BotHelper.handleGetCurrentPrice(bot=BOT, message=message)
+    symbol = re.sub(r".*CURRENT\s*", "", message.text.upper())
+    symbol = symbol.strip()
+    if symbol == "":
+        BotHelper.handleGetCurrentPrice(bot=BOT, message=message)
+    else:
+        BotHelper.handleGetCurrentPriceSingle(bot=BOT, message=message, symbol=symbol)
+
+
+@BOT.message_handler(commands=["Candle", "candle"])
+def candle(message):
+    symbol = re.sub(r".*CANDLE\s*", "", message.text.upper())
+    symbol = symbol.strip()
+    if symbol == "":
+        BotHelper.handleCandle(bot=BOT, message=message)
+    else:
+        BotHelper.handleCandleSingle(bot=BOT, message=message, symbol=symbol)
 
 BOT.infinity_polling(long_polling_timeout=None, timeout=None)
