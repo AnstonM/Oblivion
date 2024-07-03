@@ -112,12 +112,11 @@ def handleCandle(bot: telebot.TeleBot, message: telebot.types.Message):
                 data += "----------------------------------------------\n\n"
                 data += getFinalSay(symbol=symbol.strip())
         if str(chat_id) in ANALYSIS_LIST:
-            print(chat_id)     
             bot.send_message(chat_id=chat_id, text=data)
         else:
             bot.reply_to(message, text="You are not allowed to use this command")
     except:
-        handleFileNotFoundError(bot=bot, chat_id=chat_id)
+        handleFileNotFoundError(bot=bot, message=message)
 
 def handleCandleSingle(bot: telebot.TeleBot, message: telebot.types.Message, symbol: str):
     if checkSymbolExists(symbol):

@@ -4,8 +4,20 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+pyTelegramBotAPI = "4.19.0"
+yfinance = "0.2.40"
+pandas = "2.2.2"
+pandas-ta = "0.3.14b"
+numpy = "1.24.1"
+argparse = "1.4.0"
 
 [dev-packages]
+pyTelegramBotAPI = "4.19.0"
+yfinance = "0.2.40"
+pandas = "2.2.2"
+pandas-ta = "0.3.14b"
+numpy = "1.24.1"
+argparse = "1.4.0"
 
 [requires]
 python_version = "3.10"

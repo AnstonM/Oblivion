@@ -18,8 +18,7 @@ def handleGetCandleStickAnalysis(bot: telebot.TeleBot, chat_id: int, starter_mes
             for symbol in symbol_list:
                 data += "----------------------------------------------\n\n"
                 data += getFinalSay(symbol=symbol.strip())
-        if chat_id in ANALYSIS_LIST:
-            print(chat_id)     
+        if chat_id in ANALYSIS_LIST:   
             bot.send_message(chat_id=chat_id, text=data)
     except:
         handleFileNotFoundError(bot=bot, chat_id=chat_id)

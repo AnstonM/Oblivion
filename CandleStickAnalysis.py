@@ -45,7 +45,7 @@ class CandleStickPreliminaryData:
     predict: dict
     stop_loss: dict
 
-    def determineWasDownwardTrend(self, offset=2):
+    def determineWasDownwardTrend(self, offset=1):
         start = (offset * -1) - 6
         end = offset * -1
         isDecreasing = self.history.ta.decreasing().iloc[start:end].tolist()
@@ -167,12 +167,16 @@ class CandleStickPreliminaryData:
             self.predict[pattern] = None
 
 
-# Analyze 2 Crows Trend (Reversal of Upward Trend)
+# Analyze 2 Crows Trend (Predict Downward)
 def analyze_2Crows(preliminary_data: CandleStickPreliminaryData):
     # NOT ACCOUNTED BY TALIB:
     ## the user should consider that two crows is significant when it appears in an uptrend, while this function
     ## does not consider the trend
-    preliminary_data.ANALYZE_NEGATIVE(pattern="CDL_2CROWS", trend_check=True)
+    preliminary_data.ANALYZE_NEGATIVE(
+        pattern="CDL_2CROWS",
+        trend_check=True,
+        was_upward_trend=not preliminary_data.determineWasDownwardTrend(offset=2),
+    )
 
 
 # Analyze 3 Black Crows Trend (Reversal of Upward Trend)
@@ -180,7 +184,11 @@ def analyze_3BlackCrows(preliminary_data: CandleStickPreliminaryData):
     # NOT ACCOUNTED BY TALIB:
     ## the user should consider that 3 black crows is significant when it appears after a mature advance or at high levels,
     ## while this function does not consider it
-    preliminary_data.ANALYZE_NEGATIVE(pattern="CDL_3BLACKCROWS", trend_check=True)
+    preliminary_data.ANALYZE_NEGATIVE(
+        pattern="CDL_3BLACKCROWS",
+        trend_check=True,
+        was_upward_trend=not preliminary_data.determineWasDownwardTrend(offset=3),
+    )
 
 
 # Analyze 3 Inside Trend (Trend Reversal)
@@ -189,7 +197,10 @@ def analyze_3Inside(preliminary_data: CandleStickPreliminaryData):
     ## the user should consider that a three inside up is significant when it appears in a downtrend and a three inside
     ## down is significant when it appears in an uptrend, while this function does not consider the trend
     preliminary_data.ANALYZE_POSITIVE_AND_NEGATIVE(
-        pattern="CDL_3INSIDE", trend_check=True
+        pattern="CDL_3INSIDE",
+        trend_check=True,
+        was_downward_trend=preliminary_data.determineWasDownwardTrend(offset=2),
+        was_upward_trend=not preliminary_data.determineWasDownwardTrend(offset=2),
     )
 
 
@@ -199,10 +210,10 @@ def analyze_3LineStrike(preliminary_data: CandleStickPreliminaryData):
     ## the user should consider that 3-line strike is significant when it appears in a trend in the same direction of
     ## the first three candles, while this function does not consider it
     last_3_are_downward = (
-        np.sum(preliminary_data.history.ta.decreasing().iloc[-5:-2].tolist()) == 3
+        np.sum(preliminary_data.history.ta.decreasing().iloc[-4:-1].tolist()) == 3
     )
     last_3_are_upaward = (
-        np.sum(preliminary_data.history.ta.decreasing().iloc[-5:-2].tolist()) == 0
+        np.sum(preliminary_data.history.ta.decreasing().iloc[-4:-1].tolist()) == 0
     )
     preliminary_data.ANALYZE_POSITIVE_AND_NEGATIVE(
         pattern="CDL_3LINESTRIKE",
@@ -218,7 +229,7 @@ def analyze_3Outside(preliminary_data: CandleStickPreliminaryData):
     # the user should consider that a three outside up must appear in a downtrend and three outside down must appear
     # in an uptrend, while this function does not consider it
     cdl_3outside_was_downward_trend = preliminary_data.determineWasDownwardTrend(
-        offset=3
+        offset=2
     )
     cdl_3outside_was_upward_trend = not cdl_3outside_was_downward_trend
     preliminary_data.ANALYZE_POSITIVE_AND_NEGATIVE(
@@ -234,7 +245,7 @@ def analyze_3StarsInSouth(preliminary_data: CandleStickPreliminaryData):
     # NOT ACCOUNTED BY TALIB:
     ## the user should consider that 3 stars in the south is significant when it appears in downtrend, while this function does not consider it.
     initialy_was_downward_trend = preliminary_data.determineWasDownwardTrend(offset=3)
-    preliminary_data.ANALYZE_POSITIVE_AND_NEGATIVE(
+    preliminary_data.ANALYZE_POSITIVE(
         pattern="CDL_3STARSINSOUTH",
         trend_check=True,
         was_downward_trend=initialy_was_downward_trend,
@@ -243,7 +254,6 @@ def analyze_3StarsInSouth(preliminary_data: CandleStickPreliminaryData):
 
 # Analyze 3 White Soldiers Trend (Trend Reversal)
 def analyze_3WhiteSoldiers(preliminary_data: CandleStickPreliminaryData):
-
     # NOT ACCOUNTED BY TALIB:
     ## the user should consider that 3 stars in the south is significant when it appears in downtrend, while this function does not consider it.
     initialy_was_downward_trend = preliminary_data.determineWasDownwardTrend(offset=3)
@@ -264,15 +274,13 @@ def analyze_AbandonedBaby(preliminary_data: CandleStickPreliminaryData):
     )
 
 
-# Analyze Advance Block Trend (Trend Reversal)
+# Analyze Advance Block Trend (Predict Downward)
 def analyze_AdvanceBlock(preliminary_data: CandleStickPreliminaryData):
     # NOT ACCOUNTED BY TALIB:
     ## the user should consider that advance block is significant when it appears in uptrend, while this function does not consider it
-    initialy_was_upward_trend = not preliminary_data.determineWasDownwardTrend(offset=1)
     preliminary_data.ANALYZE_NEGATIVE(
         pattern="CDL_ADVANCEBLOCK",
         trend_check=True,
-        was_upward_trend=initialy_was_upward_trend,
     )
 
 
@@ -287,13 +295,9 @@ def analyze_BeltHold(preliminary_data: CandleStickPreliminaryData):
 def analyze_BreakAway(preliminary_data: CandleStickPreliminaryData):
     # NOT ACCOUNTED BY TALIB:
     ## the user should consider that breakaway is significant in a trend opposite to the last candle, while this function does not consider it
-    initialy_was_downward_trend = preliminary_data.determineWasDownwardTrend(offset=1)
-    initialy_was_upward_trend = not initialy_was_downward_trend
     preliminary_data.ANALYZE_POSITIVE_AND_NEGATIVE(
         pattern="CDL_BREAKAWAY",
         trend_check=True,
-        was_downward_trend=initialy_was_downward_trend,
-        was_upward_trend=initialy_was_upward_trend,
     )
 
 
@@ -308,11 +312,9 @@ def analyze_ClosingMarubozu(preliminary_data: CandleStickPreliminaryData):
 def analyze_ConcealingBabySwallow(preliminary_data: CandleStickPreliminaryData):
     # NOT ACCOUNTED BY TALIB:
     ## the user should consider that concealing baby swallow is significant when it appears in downtrend, while this function does not consider it
-    initialy_was_downward_trend = preliminary_data.determineWasDownwardTrend(offset=1)
     preliminary_data.ANALYZE_POSITIVE(
         pattern="CDL_CONCEALBABYSWALL",
         trend_check=True,
-        was_downward_trend=initialy_was_downward_trend,
     )
 
 
@@ -330,7 +332,6 @@ def analyze_DarkCloudCover(preliminary_data: CandleStickPreliminaryData):
     preliminary_data.ANALYZE_NEGATIVE(
         pattern="CDL_DARKCLOUDCOVER",
         trend_check=True,
-        was_upward_trend=not preliminary_data.determineWasDownwardTrend(offset=3),
     )
 
 
@@ -691,7 +692,11 @@ def analyze_StalledPattern(preliminary_data: CandleStickPreliminaryData):
 def analyze_StickSandwich(preliminary_data: CandleStickPreliminaryData):
     # NOT ACCOUNTED BY TA-LIB
     ##  the user should consider that a stick sandwich is significant when it appears in a downtrend, while this function does not consider the trend
-    preliminary_data.ANALYZE_POSITIVE(pattern="CDL_STICKSANDWICH", trend_check=True)
+    preliminary_data.ANALYZE_POSITIVE(
+        pattern="CDL_STICKSANDWICH",
+        trend_check=True,
+        was_downward_trend=preliminary_data.determineWasDownwardTrend(offset=2),
+    )
 
 
 # Analyze Stick Sandwich Trend (Predict Upward)
@@ -704,7 +709,10 @@ def analyze_Takuri(preliminary_data: CandleStickPreliminaryData):
 # Analyze Tasuki Gap Trend (Trend Reversal)
 def analyze_TasukiGap(preliminary_data: CandleStickPreliminaryData):
     preliminary_data.ANALYZE_POSITIVE_AND_NEGATIVE(
-        pattern="CDL_TASUKIGAP", trend_check=True
+        pattern="CDL_TASUKIGAP",
+        trend_check=True,
+        was_downward_trend=preliminary_data.determineWasDownwardTrend(offset=2),
+        was_upward_trend=not preliminary_data.determineWasDownwardTrend(offset=2),
     )
 
 
@@ -716,7 +724,10 @@ def analyze_Thrusting(preliminary_data: CandleStickPreliminaryData):
 # Analyze Tri Star Trend (Trend Reversal)
 def analyze_TriStar(preliminary_data: CandleStickPreliminaryData):
     preliminary_data.ANALYZE_POSITIVE_AND_NEGATIVE(
-        pattern="CDL_TRISTAR", trend_check=False
+        pattern="CDL_TRISTAR",
+        trend_check=False,
+        was_downward_trend=preliminary_data.determineWasDownwardTrend(offset=2),
+        was_upward_trend=not preliminary_data.determineWasDownwardTrend(offset=2),
     )
 
 
@@ -724,14 +735,22 @@ def analyze_TriStar(preliminary_data: CandleStickPreliminaryData):
 def analyze_Unique3River(preliminary_data: CandleStickPreliminaryData):
     # NOT ACCOUNTED BY TA-LIB
     ##  unique 3 river is always bullish and should appear in a downtrend
-    preliminary_data.ANALYZE_POSITIVE(pattern="CDL_UNIQUE3RIVER", trend_check=True)
+    preliminary_data.ANALYZE_POSITIVE(
+        pattern="CDL_UNIQUE3RIVER",
+        trend_check=True,
+        was_downward_trend=preliminary_data.determineWasDownwardTrend(offset=2),
+    )
 
 
 # Analyze Upside Gap 2 Crows Trend (predict Downward)
 def analyze_UpsideGap2Crows(preliminary_data: CandleStickPreliminaryData):
     # NOT ACCOUTED BY TA-LIB
     ## the user should consider that an upside gap two crows is significant when it appears in an uptrend
-    preliminary_data.ANALYZE_NEGATIVE(pattern="CDL_UPSIDEGAP2CROWS", trend_check=True)
+    preliminary_data.ANALYZE_NEGATIVE(
+        pattern="CDL_UPSIDEGAP2CROWS",
+        trend_check=True,
+        was_upward_trend=not preliminary_data.determineWasDownwardTrend(offset=2),
+    )
 
 
 # Analyze Upside/Downside Gap 3 Method Trend (Trend Continuation)
